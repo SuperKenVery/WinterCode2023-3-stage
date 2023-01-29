@@ -10,7 +10,7 @@ cmake=import('cmake')
 sdlpp=dependency('sdl2pp')
 
 executable('main',
-    ['main.cpp','Player.cpp'],
+    ['main.cpp','Player.cpp','Map/Block.cpp','Map/Map.cpp','Bomb.cpp'],
     dependencies: [sdlpp],
     install: true,
     install_dir: '/usr/bin',

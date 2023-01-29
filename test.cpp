@@ -1,13 +1,40 @@
 #include <exception>
 #include <iostream>
+#include <vector>
 
 #include <SDL2pp/SDL2pp.hh>
 
 using namespace SDL2pp;
+using namespace std;
 
 #define DATA_PATH "."
 
+class A{
+    public:
+    int A=1;
+    virtual void ss(){
+        cout<<"hi"<<endl;
+    }
+};
+
+class B:public A{
+    public:
+    int B=2;
+    void ss() override{
+        cout<<"hello"<<endl;
+    }
+};
+
+
+
 int main() try {
+    vector<A> As;
+    As.push_back(A());
+    As.push_back(B());
+    As[0].ss();
+    As[1].ss();
+
+
     // Initialize SDL library
     SDL sdl(SDL_INIT_VIDEO);
 
