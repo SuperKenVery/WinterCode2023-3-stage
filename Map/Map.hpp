@@ -21,6 +21,8 @@ class Map {
     vector<vector<Block *> *> blocks;
     Texture *cache;
     vector<collision_detector*> *collision_detectors;
+
+    // Callbacks
     render_callback rendercb;
     collision_detector collisiondet;
     blowup_callback blowcb;

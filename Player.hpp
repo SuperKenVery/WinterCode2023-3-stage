@@ -4,6 +4,7 @@
 #include "Bomb.hpp"
 #include "Map/Map.hpp"
 #include "base.hpp"
+#include "BloodBar.hpp"
 #include <SDL2pp/SDL2pp.hh>
 #include <string>
 #include <unordered_map>
@@ -11,6 +12,8 @@
 
 using namespace SDL2pp;
 using namespace std;
+
+#define BOMB_HURT (double)5/100
 
 enum player_control_type_enum { wasd, arrow };
 enum player_state_enum { up, down, left, right, stop };
@@ -21,6 +24,8 @@ class Player {
     player_control_type_enum control_type;
     player_state_enum state = stop;
     unordered_map<player_state_enum,Texture *> images;
+    BloodBar *blb;
+    double blood=1;
 
     // The callbacks
     move_callback movecb;

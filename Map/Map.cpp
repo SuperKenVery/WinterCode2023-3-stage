@@ -38,7 +38,6 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
                  "00222000000100000022002000000100000000\n"
                  "00222000000100000022002000000100000000\n"
                  "00222000000100000022002000000100000000\n"
-                 "00222000000100000022002000000100000000\n"
                  "00000000000100000000000000000100000000\n";
 
     // Initialize all blocks - Process the string
@@ -55,9 +54,9 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
                               SDL_TEXTUREACCESS_TARGET, BLOCK_WIDTH * width,
                               BLOCK_HEIGHT * height);
 
-    this->position.y =
-        (this->renderer->GetOutputHeight() - this->cache->GetHeight()) / 2;
-    this->position.SetY2(this->position.y + this->cache->GetHeight());
+    // Vertical: Top  Horizontal: Middle
+    this->position.y = 0;
+    this->position.h = this->cache->GetHeight();
     this->position.x =
         (this->renderer->GetOutputWidth() - this->cache->GetWidth()) / 2;
     this->position.SetX2(this->position.x + this->cache->GetWidth());
@@ -68,15 +67,18 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
         for (auto block_char : line) {
             switch (block_char) {
             case block_type_for_map::ground_block:
-                row->push_back(new Block(this->renderer, pos, blow_callbacks,
+                row->push_back(new Block(this->renderer, new Rect(pos),
+                                         blow_callbacks,
                                          block_type_enum::ground));
                 break;
             case block_type_for_map::hard_wall_block:
-                row->push_back(new Block(this->renderer, pos, blow_callbacks,
+                row->push_back(new Block(this->renderer, new Rect(pos),
+                                         blow_callbacks,
                                          block_type_enum::hard_wall));
                 break;
             case block_type_for_map::soft_wall_block:
-                row->push_back(new Block(this->renderer, pos, blow_callbacks,
+                row->push_back(new Block(this->renderer, new Rect(pos),
+                                         blow_callbacks,
                                          block_type_enum::soft_wall));
                 break;
             default:
@@ -110,13 +112,8 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
 
         this->renderer->SetTarget();
 
-        this->renderer->Copy(
-            *this->cache, NullOpt,
-            Point(
-                (this->renderer->GetOutputWidth() - this->cache->GetWidth()) /
-                    2,
-                (this->renderer->GetOutputHeight() - this->cache->GetHeight()) /
-                    2));
+        this->renderer->Copy(*this->cache, NullOpt,
+                             this->position.GetTopLeft());
     };
     render_objects->push_back(&this->rendercb);
 
@@ -126,15 +123,10 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
             return false;
 
         // Convert the coordinate system from window to map
-        Rect map_coordinate = Rect(
-            other->x -
-                (this->renderer->GetOutputWidth() - this->cache->GetWidth()) /
-                    2,
-            other->y -
-                (this->renderer->GetOutputHeight() - this->cache->GetHeight()) /
-                    2,
-            // No scaling occurred when rendering map onto screen
-            other->w, other->h);
+        Rect map_coordinate =
+            Rect(other->x - this->position.x, other->y - this->position.y,
+                 // No scaling occurred when rendering map onto screen
+                 other->w, other->h);
         bool intersects = false;
         for (auto line : this->blocks) {
             for (auto block : *line) {

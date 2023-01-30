@@ -12,7 +12,7 @@ enum block_type_enum { hard_wall, soft_wall, ground };
 class Block {
     Renderer *renderer;
     Texture *image;
-    Rect position;
+    Rect *position;
     block_type_enum type;
 
     // The callbacks
@@ -25,7 +25,7 @@ class Block {
     bool need_render = true;
 
   public:
-    Block(Renderer *renderer, Rect position,
+    Block(Renderer *renderer, Rect *position,
           vector<blowup_callback*> *blow_callbacks,
           block_type_enum type);
 
@@ -43,6 +43,8 @@ class Block {
     void move(Uint64 time);
 
     bool intersects(Rect *other);
+
+    ~Block();
 };
 
 #endif

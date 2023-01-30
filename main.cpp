@@ -11,7 +11,8 @@ resources_container resources;
 void loadResources(Renderer &r) {
     try {
         // Block
-        resources.block_ground = new Texture(r, RESOURCE_PATH "block-ground.png");
+        resources.block_ground =
+            new Texture(r, RESOURCE_PATH "block-ground.png");
         resources.block_hard_wall =
             new Texture(r, RESOURCE_PATH "block-hard-wall.png");
         resources.block_soft_wall =
@@ -21,7 +22,8 @@ void loadResources(Renderer &r) {
         resources.player_up = new Texture(r, RESOURCE_PATH "player-up.png");
         resources.player_down = new Texture(r, RESOURCE_PATH "player-down.png");
         resources.player_left = new Texture(r, RESOURCE_PATH "player-left.png");
-        resources.player_right = new Texture(r, RESOURCE_PATH "player-right.png");
+        resources.player_right =
+            new Texture(r, RESOURCE_PATH "player-right.png");
         resources.player_stop = new Texture(r, RESOURCE_PATH "player-stop.png");
 
         // Bomb
@@ -37,11 +39,11 @@ void loadResources(Renderer &r) {
 int main() {
     SDL sdl(SDL_INIT_VIDEO);
 
-    std::vector<move_callback*> movers;
-    std::vector<render_callback*> render_objects;
-    std::vector<event_handle_callback*> event_listeners;
-    std::vector<blowup_callback*> blowable_objects;
-    std::vector<collision_detector*> collision_detectors;
+    std::vector<move_callback *> movers;
+    std::vector<render_callback *> render_objects;
+    std::vector<event_handle_callback *> event_listeners;
+    std::vector<blowup_callback *> blowable_objects;
+    std::vector<collision_detector *> collision_detectors;
 
     Window window("泡泡堂", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                   1920, 1080, SDL_WINDOW_RESIZABLE);
@@ -55,16 +57,18 @@ int main() {
     // The order of initializing Map and Player is important
     // This is the render order
 
-    Map map(&render_objects, &renderer, &collision_detectors, &blowable_objects);
+    Map map(&render_objects, &renderer, &collision_detectors,
+            &blowable_objects);
 
     Player left_player(&movers, &render_objects, &event_listeners,
-                       &collision_detectors, &blowable_objects, wasd, &renderer, &map),
+                       &collision_detectors, &blowable_objects, wasd, &renderer,
+                       &map),
         right_player(&movers, &render_objects, &event_listeners,
-                     &collision_detectors, &blowable_objects, arrow, &renderer, &map);
-    right_player.position.x +=
-        left_player.position.w + 1; // Or no one can move!
+                     &collision_detectors, &blowable_objects, arrow, &renderer,
+                     &map);
+    right_player.position.x += left_player.position.w; // Or no one can move!
 
-    Uint64 last_time=SDL_GetTicks64(),time=SDL_GetTicks64();
+    Uint64 last_time = SDL_GetTicks64(), time = SDL_GetTicks64();
     while (true) {
         // Handle events
         SDL_Event event;
@@ -80,12 +84,11 @@ int main() {
         // Draw the animation
         renderer.SetDrawColor(0, 0, 0, 255);
         renderer.Clear();
-        last_time=time;
-        time=SDL_GetTicks64();
-
+        last_time = time;
+        time = SDL_GetTicks64();
 
         for (auto mover : movers)
-            (*mover)(time,time-last_time);
+            (*mover)(time, time - last_time);
 
         for (auto render_object : render_objects)
             (*render_object)();
@@ -95,8 +98,9 @@ int main() {
 
         // Control framerate
         const Uint32 frame_rate = 60;
-        Uint64 delay = 1000 / frame_rate - (time-last_time);
+        Uint64 delay = 1000 / frame_rate - (time - last_time);
         // What if on a garbage machine delay<0 and wraps to very big?
-        if(delay<=1000/frame_rate) SDL_Delay(delay);
+        if (delay <= 1000 / frame_rate)
+            SDL_Delay(delay);
     }
 }

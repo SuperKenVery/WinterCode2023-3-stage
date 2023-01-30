@@ -27,6 +27,16 @@ Player::Player(vector<move_callback *> *move_objects,
     this->position.y = this->map->position.y;
     this->position.w = 50;
     this->position.h = 50;
+    this->blb = new BloodBar(
+        renderer, render_objects,
+        this->control_type == wasd ? new Color(0, 255, 0)
+                                   : new Color(0, 0, 255),
+        new Rect(this->control_type == wasd
+                     ? 0
+                     : this->renderer->GetOutputWidth() / 2,
+                 map->position.GetY2(), this->renderer->GetOutputWidth() / 2,
+                 this->renderer->GetOutputHeight() - this->map->position.h),
+        &this->blood);
 
     // Move callback
     this->movecb = [=](Uint64 time, Uint64 dtime) -> void {
@@ -207,7 +217,7 @@ Player::Player(vector<move_callback *> *move_objects,
     this->blowupcb = [=](bomb_detection_callback willBeBlownUp) -> void {
         if (!willBeBlownUp(&this->position))
             return;
-        // TODO: Reduce blood
+        this->blood-=BOMB_HURT;
     };
     blowable_objects->push_back(&this->blowupcb);
 }
