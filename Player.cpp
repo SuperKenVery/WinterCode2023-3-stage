@@ -217,7 +217,32 @@ Player::Player(vector<move_callback *> *move_objects,
     this->blowupcb = [=](bomb_detection_callback willBeBlownUp) -> void {
         if (!willBeBlownUp(&this->position))
             return;
-        this->blood-=BOMB_HURT;
+        this->blood -= BOMB_HURT;
+        if (this->blood <= 0)
+            this->lose();
     };
     blowable_objects->push_back(&this->blowupcb);
+}
+
+void Player::lose() {
+    int *lostPlayer = new int(this->control_type);
+    // Texture *screenshot=new Texture(*this->renderer, SDL_PIXELFORMAT_RGB24,
+    //                SDL_TEXTUREACCESS_TARGET, this->renderer->GetOutputWidth(),
+    //                this->renderer->GetOutputHeight());
+    // this->renderer->SetTarget(*screenshot);
+    // for(auto r : *this->render_objects)
+    //     (*r)();
+    // this->renderer->SetTarget();
+    Surface screenshot_surface(0,this->renderer->GetOutputWidth(),this->renderer->GetOutputHeight(),32,0x00ff0000,0x0000ff00,0x000000ff,0xff000000);
+    this->renderer->ReadPixels(NullOpt,SDL_PIXELFORMAT_ARGB8888,screenshot_surface.Get()->pixels,screenshot_surface.Get()->pitch);
+    Texture *screenshot=new Texture(*this->renderer,screenshot_surface);
+
+    SDL_UserEvent *e = new SDL_UserEvent{.type = ChangeGameState,
+                                         .timestamp = 0,
+                                         .windowID = 0,
+                                         .code = changeGameStateAction::endGame,
+                                         .data1 = lostPlayer,
+                                         .data2 = screenshot};
+    SDL_PushEvent((SDL_Event *)e);
+    printf("Lose!\n");
 }

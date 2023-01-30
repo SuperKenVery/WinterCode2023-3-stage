@@ -103,11 +103,10 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
 
         if (need_render) {
             this->renderer->SetTarget(*this->cache);
-            for (auto line : this->blocks) {
-                for (auto block : *line) {
-                    block->render();
-                }
-            }
+            for (auto line : this->blocks)
+                for (auto block : *line)
+                    if (block->need_render)
+                        block->render();
         }
 
         this->renderer->SetTarget();

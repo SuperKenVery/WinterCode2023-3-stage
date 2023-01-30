@@ -1,22 +1,17 @@
-project('paopaotang','cpp',
+project('泡泡堂','cpp',
     default_options:[
         'c_std=c17',
         'cpp_std=c++17'
     ]
 )
 
-cmake=import('cmake')
-
 sdlpp=dependency('sdl2pp')
 
-executable('main',
-    ['main.cpp','Player.cpp','Map/Block.cpp','Map/Map.cpp','Bomb.cpp','BloodBar.cpp'],
+executable('ppt',
+    ['main.cpp','Player.cpp','Map/Block.cpp','Map/Map.cpp','Bomb.cpp','BloodBar.cpp','gameScenes.cpp','Bot.cpp'],
     dependencies: [sdlpp],
     install: true,
-    install_dir: '/usr/bin',
+    install_dir: 'ppt/',
 )
 
-executable('testcompile',
-    'test.cpp',
-    dependencies: sdlpp
-)
+install_subdir('res',install_dir:'ppt/')

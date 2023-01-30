@@ -48,11 +48,24 @@ typedef struct resources_container {
     // Player
     Texture *player_up, *player_down, *player_right, *player_left, *player_stop;
 
+    // Bot
+    Texture *bot;
+
     // Bomb
     Texture *bomb;
     std::vector<Texture*> bomb_animation_frames;
+
+    // State of this struct
+    bool loaded=false;
 } resources_container;
 
 extern resources_container resources;
+
+extern Uint32 ChangeGameState;
+
+enum changeGameStateAction{
+    startGame,
+    endGame
+};
 
 #endif
