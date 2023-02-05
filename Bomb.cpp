@@ -62,8 +62,7 @@ void Bomb::blow_up() {
         }
     };
 
-    for (auto b : *this->blow_listeners)
-        (*b)(bdcb);
+    CALLTHROUGH(this->blow_listeners,bdcb);
 
     // This is not recommended, but is very convenient here.
     delete this;

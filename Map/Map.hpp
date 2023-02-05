@@ -26,15 +26,17 @@ class Map {
     render_callback rendercb;
     collision_detector collisiondet;
     blowup_callback blowcb;
+    move_callback movecb;
 
   public:
     Texture *ground, *soft_wall, *hard_wall;
     Rect position;
 
   public:
-    Map(vector<render_callback*> *render_objects, Renderer *renderer,
-        vector<collision_detector*> *collision_detectors,
-        vector<blowup_callback*> *blow_callbacks);
+    Map(vector<render_callback *> *render_objects, Renderer *renderer,
+        vector<collision_detector *> *collision_detectors,
+        vector<blowup_callback *> *blow_callbacks,
+        vector<move_callback *> *move_callbacks);
 };
 
 #endif

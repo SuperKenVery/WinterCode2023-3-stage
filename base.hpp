@@ -8,11 +8,17 @@ using namespace SDL2pp;
 
 #define RESOURCE_PATH "res/"
 #define REMOVEFROMONCE(elem, vect)                                             \
-    for (auto e = vect->begin(); e != vect->end(); e++) {                      \
-        if (*e == elem) {                                                      \
-            vect->erase(e);                                                    \
+    for (auto e = (vect)->begin(); e != (vect)->end(); e++) {                  \
+        if (*e == (elem)) {                                                    \
+            (vect)->erase(e);                                                  \
             break;                                                             \
         }                                                                      \
+    }
+// Call though a vector of functions
+// Safe even if the vector is modified
+#define CALLTHROUGH(funcs, args...)                                            \
+    for (int i = 0; i < (funcs)->size(); i++) {                                \
+        (*((*(funcs))[i]))(args);                                              \
     }
 
 // The render callback type
@@ -22,13 +28,13 @@ typedef std::function<void()> render_callback;
 /* Argument 1: result of SDL_GetTick64()
    Argument 2: delta of SDL_GetTick64() from last move() call to this
  */
-typedef std::function<void(Uint64,Uint64)> move_callback;
+typedef std::function<void(Uint64, Uint64)> move_callback;
 
 // The event handling callback type
 typedef std::function<void(SDL_Event *)> event_handle_callback;
 
 // Will you be influenced by a bomb?
-typedef std::function<bool(Rect*)> bomb_detection_callback;
+typedef std::function<bool(Rect *)> bomb_detection_callback;
 
 // When a bomb blows, all objects it influences will get this callback called.
 typedef std::function<void(bomb_detection_callback)> blowup_callback;
@@ -53,19 +59,20 @@ typedef struct resources_container {
 
     // Bomb
     Texture *bomb;
-    std::vector<Texture*> bomb_animation_frames;
+    std::vector<Texture *> bomb_animation_frames;
 
     // State of this struct
-    bool loaded=false;
+    bool loaded = false;
+
+    // End scene
+    Texture *arrow_win,*wasd_win;
+    Texture *instruction;
 } resources_container;
 
 extern resources_container resources;
 
 extern Uint32 ChangeGameState;
 
-enum changeGameStateAction{
-    startGame,
-    endGame
-};
+enum changeGameStateAction { startGame, endGame };
 
 #endif

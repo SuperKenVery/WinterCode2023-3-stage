@@ -25,10 +25,22 @@ void loadResources(Renderer &r) {
 
         // Bomb
         resources.bomb = new Texture(r, RESOURCE_PATH "bomb.png");
-        // TODO: Load bomb animation
+        for (int i = 1; i <= 29; i++) {
+            char filename[50];
+            sprintf(filename,
+                    RESOURCE_PATH "bomb-animation/"
+                                  "bomb-%d.png",
+                    i);
+            resources.bomb_animation_frames.push_back(new Texture(r, filename));
+        }
 
         // State
         resources.loaded = true;
+
+        // End scene
+        resources.arrow_win = new Texture(r, RESOURCE_PATH "arrow-win.png");
+        resources.wasd_win = new Texture(r, RESOURCE_PATH "wasd-win.png");
+        resources.instruction = new Texture(r, RESOURCE_PATH "instruction.png");
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::cout << "Failed to load resources, quitting now..." << std::endl;
@@ -48,8 +60,8 @@ void mainGameScene(Renderer &renderer, SDL_Event *event) {
     // The order of initializing Map and Player is important
     // This is the render order
 
-    Map map(&render_objects, &renderer, &collision_detectors,
-            &blowable_objects);
+    Map map(&render_objects, &renderer, &collision_detectors, &blowable_objects,
+            &movers);
 
     Player left_player(&movers, &render_objects, &event_listeners,
                        &collision_detectors, &blowable_objects, wasd, &renderer,
@@ -57,14 +69,18 @@ void mainGameScene(Renderer &renderer, SDL_Event *event) {
         right_player(&movers, &render_objects, &event_listeners,
                      &collision_detectors, &blowable_objects, arrow, &renderer,
                      &map);
-    right_player.position.x = left_player.position.w+10; // Or no one can move!
+    right_player.position.x =
+        left_player.position.w + 10; // Or no one can move!
 
-    Bot *bot_a=new Bot(&movers, &render_objects, &event_listeners, &collision_detectors,
-              &blowable_objects, &renderer, &map),
-        *bot_b=new Bot(&movers, &render_objects, &event_listeners, &collision_detectors,
-              &blowable_objects, &renderer, &map);
-    bot_a->position.x=left_player.position.w+right_player.position.w+20;
-    bot_b->position.x = left_player.position.w + right_player.position.w+bot_a->position.w+30;
+    Bot *bot_a =
+            new Bot(&movers, &render_objects, &event_listeners,
+                    &collision_detectors, &blowable_objects, &renderer, &map),
+        *bot_b =
+            new Bot(&movers, &render_objects, &event_listeners,
+                    &collision_detectors, &blowable_objects, &renderer, &map);
+    bot_a->position.x = left_player.position.w + right_player.position.w + 20;
+    bot_b->position.x = left_player.position.w + right_player.position.w +
+                        bot_a->position.w + 30;
 
     Uint64 last_time = SDL_GetTicks64(), time = SDL_GetTicks64();
 
@@ -77,8 +93,7 @@ void mainGameScene(Renderer &renderer, SDL_Event *event) {
             } else if (event->type == ChangeGameState) {
                 return;
             }
-            for (auto event_listener : event_listeners)
-                (*event_listener)(event);
+            CALLTHROUGH(&event_listeners, event)
         }
 
         // Draw the animation
@@ -87,11 +102,9 @@ void mainGameScene(Renderer &renderer, SDL_Event *event) {
         last_time = time;
         time = SDL_GetTicks64();
 
-        for (auto mover : movers)
-            (*mover)(time, time - last_time);
+        CALLTHROUGH(&movers, time, time - last_time)
 
-        for (auto render_object : render_objects)
-            (*render_object)();
+        CALLTHROUGH(&render_objects)
 
         // Show them on screen
         renderer.Present();
@@ -112,29 +125,20 @@ void endGameScene(Renderer &renderer, SDL_Event *event, Window *window) {
     renderer.Copy(*screenshot);
 
     // Render the message that says who wins
-    SDLTTF ttf;
-    Font gameResultFont(RESOURCE_PATH "Ubuntu-R.ttf", 160),
-        instructionsFont(RESOURCE_PATH "Ubuntu-R.ttf", 120);
-    string msg =
-        string(*((int *)event->user.data1) == wasd ? "arrow" : "wasd") +
-        string(" Player won!");
-    Surface msg_sf =
-        gameResultFont.RenderText_Blended(msg, Color(255, 185, 185));
-    Texture msg_tx = Texture(renderer, msg_sf);
-    renderer.Copy(msg_tx, NullOpt,
-                  Rect((renderer.GetOutputWidth() - msg_tx.GetWidth()) / 2,
-                       (renderer.GetOutputHeight() - msg_tx.GetHeight()) / 2,
-                       msg_tx.GetWidth(), msg_tx.GetHeight()));
+    Texture *to_render = *((int *)event->user.data1) == wasd
+                             ? resources.arrow_win
+                             : resources.wasd_win;
+    renderer.Copy(*to_render, NullOpt,
+                  Rect((renderer.GetOutputWidth() - to_render->GetWidth()) / 2,
+                       (renderer.GetOutputHeight() - to_render->GetHeight()) / 2,
+                       to_render->GetWidth(), to_render->GetHeight()));
 
     // Render some instructions
-    string instruction("Press space to replay, or q to quit.");
-    Surface inst_sf =
-        instructionsFont.RenderText_Blended(instruction, Color(185, 185, 185));
-    Texture inst_tx = Texture(renderer, inst_sf);
-    renderer.Copy(inst_tx, NullOpt,
-                  Rect((renderer.GetOutputWidth() - inst_tx.GetWidth()) / 2,
-                       renderer.GetOutputHeight() * 0.8 - inst_tx.GetHeight(),
-                       inst_tx.GetWidth(), inst_tx.GetHeight()));
+    Texture *inst_tx = resources.instruction;
+    renderer.Copy(*inst_tx, NullOpt,
+                  Rect((renderer.GetOutputWidth() - inst_tx->GetWidth()) / 2,
+                       renderer.GetOutputHeight() * 0.8 - inst_tx->GetHeight(),
+                       inst_tx->GetWidth(), inst_tx->GetHeight()));
 
     renderer.Present();
 

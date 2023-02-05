@@ -26,15 +26,15 @@ Bot::Bot(vector<move_callback *> *move_objects,
     this->generator = new mt19937((*this->device)());
     this->distribution = new uniform_int_distribution<int>(1, 3);
     this->movecb = [=](Uint64 time, Uint64 dtime) -> void {
-        if (time % 3000 == 0) {
+        if (time % 3000 < 10) {
             vector<player_state_enum> choices(
                 {player_state_enum::up, player_state_enum::down,
                  player_state_enum::left, player_state_enum::right,
                  player_state_enum::stop});
-            shuffle(choices.begin(), choices.end(),*this->generator);
+            shuffle(choices.begin(), choices.end(), *this->generator);
             this->state = choices[0];
 
-            if ((*this->distribution)(*this->generator) == 0)
+            if ((*this->distribution)(*this->generator) == 1)
                 new Bomb(this->renderer, new Rect(this->position),
                          this->move_objects, this->render_objects,
                          this->blowable_objects);
@@ -60,6 +60,7 @@ Bot::Bot(vector<move_callback *> *move_objects,
             return;
         }
         bool intersects = false;
+        // collision_detectors don't delete themselves
         for (auto detect : *this->collision_detectors)
             if (detect != &this->collisiondet)
                 intersects |= (*detect)(&new_position, this);
@@ -103,7 +104,6 @@ Bot::Bot(vector<move_callback *> *move_objects,
     };
     blowable_objects->push_back(&this->blowupcb);
 }
-
 
 Bot::~Bot() {
     // Remove callbacks from callback chains

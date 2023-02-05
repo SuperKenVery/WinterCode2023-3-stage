@@ -2,13 +2,13 @@
     "tasks": [
         {
             "type": "meson",
-            "target": "main",
+            "target": "ppt",
             "mode": "build",
             "problemMatcher": [
                 "$meson-gcc"
             ],
             "group": "build",
-            "label": "Meson: Build main"
+            "label": "Meson: Build ppt"
         }
     ],
     "version": "2.0.0"

@@ -14,12 +14,17 @@ class Block {
     Texture *image;
     Rect *position;
     block_type_enum type;
+    bool destroying=false;
+    int countdown=30; // 30 frames of animation when destroying
+    Texture *animating_image;
 
     // The callbacks
     blowup_callback blowupcb;
+    move_callback movecb;
 
     // The vector<callback>s
     vector<blowup_callback*> *blowup_callbacks;
+    vector<move_callback*> *move_callbacks;
 
   public:
     bool need_render = true;
@@ -27,6 +32,7 @@ class Block {
   public:
     Block(Renderer *renderer, Rect *position,
           vector<blowup_callback*> *blow_callbacks,
+          vector<move_callback*> *move_callbacks,
           block_type_enum type);
 
     /* Render the block on Map
@@ -40,7 +46,7 @@ class Block {
 
        Might be used if we want to render animation for block
     */
-    void move(Uint64 time);
+    void move(Uint64 time,Uint64 dtime);
 
     bool intersects(Rect *other);
 

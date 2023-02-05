@@ -2,7 +2,8 @@
 
 Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
          vector<collision_detector *> *collision_detectors,
-         vector<blowup_callback *> *blow_callbacks) {
+         vector<blowup_callback *> *blow_callbacks,
+         vector<move_callback *> *move_callbacks) {
     // Initialize some variables
     this->renderer = renderer;
     this->collision_detectors = collision_detectors;
@@ -19,26 +20,26 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
         1-hard wall
         2-soft wall
     */
-    string map = "00000001000000000000000001000000000000\n"
-                 "00000001000000000000000001000000000000\n"
-                 "00000001000000000000000001000000000000\n"
-                 "00000001000111110000000001000111110000\n"
+    string map = "00000000000000000000000001000000000000\n"
+                 "00000000000000000000000001000000000000\n"
+                 "00000000000000000000000001000000000000\n"
+                 "00000000000000000000000001000222222222\n"
                  "00000000000000000000000000000000000000\n"
-                 "11111000000100001111001000000100000000\n"
+                 "00000000000100000000001000000111111111\n"
                  "00000000000100000000000000000100000000\n"
                  "00222000000100000022002000000100000000\n"
                  "00000000000100000000000000000100000000\n"
-                 "00000001000000000000000001000000000000\n"
-                 "00000001000000000000000001000000000000\n"
-                 "00000001000000000000000001000000000000\n"
-                 "00000001000111110000000001000111110000\n"
+                 "00000000000000000000022200000000000000\n"
+                 "00000000000000000000022200000000000000\n"
+                 "00000000000000000000022200000000000000\n"
+                 "00000000000111110000000000000111111111\n"
                  "00000000000000000000000000000000000000\n"
-                 "11111000000100001111001000000100000000\n"
-                 "00000000000100000000000000000100000000\n"
-                 "00222000000100000022002000000100000000\n"
-                 "00222000000100000022002000000100000000\n"
-                 "00222000000100000022002000000100000000\n"
-                 "00000000000100000000000000000100000000\n";
+                 "12222222222222201111001000000200000000\n"
+                 "00000000000100000000000000000200000000\n"
+                 "00222000000100000022002000000200000000\n"
+                 "00222000000100000022002000000200000000\n"
+                 "00222000000100000022002000000200000000\n"
+                 "00000000000100000000000000000200000000\n";
 
     // Initialize all blocks - Process the string
     vector<string> lines;
@@ -68,17 +69,17 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
             switch (block_char) {
             case block_type_for_map::ground_block:
                 row->push_back(new Block(this->renderer, new Rect(pos),
-                                         blow_callbacks,
+                                         blow_callbacks, move_callbacks,
                                          block_type_enum::ground));
                 break;
             case block_type_for_map::hard_wall_block:
                 row->push_back(new Block(this->renderer, new Rect(pos),
-                                         blow_callbacks,
+                                         blow_callbacks, move_callbacks,
                                          block_type_enum::hard_wall));
                 break;
             case block_type_for_map::soft_wall_block:
                 row->push_back(new Block(this->renderer, new Rect(pos),
-                                         blow_callbacks,
+                                         blow_callbacks, move_callbacks,
                                          block_type_enum::soft_wall));
                 break;
             default:
@@ -103,6 +104,7 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
 
         if (need_render) {
             this->renderer->SetTarget(*this->cache);
+            // renderers doesn't delete themselves
             for (auto line : this->blocks)
                 for (auto block : *line)
                     if (block->need_render)
@@ -115,6 +117,16 @@ Map::Map(vector<render_callback *> *render_objects, Renderer *renderer,
                              this->position.GetTopLeft());
     };
     render_objects->push_back(&this->rendercb);
+
+    // Move callback
+    this->movecb = [=](Uint64 time, Uint64 dtime) -> void {
+        for (auto line : this->blocks) {
+            for (auto block : *line) {
+                block->move(time, dtime);
+            }
+        }
+    };
+    move_callbacks->push_back(&this->movecb);
 
     // Collision callback
     this->collisiondet = [=](Rect *other, void *from) -> bool {

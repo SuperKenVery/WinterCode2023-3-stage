@@ -8,7 +8,7 @@
             "name": "(gdb) 启动",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/builddir/main",
+            "program": "${workspaceFolder}/builddir/ppt",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -27,7 +27,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Meson: Build main",
+            "preLaunchTask": "Meson: Build ppt",
         }
 
     ]
