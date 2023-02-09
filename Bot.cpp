@@ -34,7 +34,7 @@ Bot::Bot(vector<move_callback *> *move_objects,
             shuffle(choices.begin(), choices.end(), *this->generator);
             this->state = choices[0];
 
-            if ((*this->distribution)(*this->generator) == 1)
+            if ((*this->distribution)(*this->generator) <10)
                 new Bomb(this->renderer, new Rect(this->position),
                          this->move_objects, this->render_objects,
                          this->blowable_objects);
@@ -107,6 +107,7 @@ Bot::Bot(vector<move_callback *> *move_objects,
 
 Bot::~Bot() {
     // Remove callbacks from callback chains
+    printf("Bot destructor called\n");
     REMOVEFROMONCE(&this->movecb, this->move_objects)
     REMOVEFROMONCE(&this->rendercb, this->render_objects)
     REMOVEFROMONCE(&this->collisiondet, this->collision_detectors)

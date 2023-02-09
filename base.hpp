@@ -8,6 +8,7 @@ using namespace SDL2pp;
 
 #define RESOURCE_PATH "res/"
 #define REMOVEFROMONCE(elem, vect)                                             \
+    printf("Removing %p\n", elem);                                             \
     for (auto e = (vect)->begin(); e != (vect)->end(); e++) {                  \
         if (*e == (elem)) {                                                    \
             (vect)->erase(e);                                                  \
@@ -17,8 +18,15 @@ using namespace SDL2pp;
 // Call though a vector of functions
 // Safe even if the vector is modified
 #define CALLTHROUGH(funcs, args...)                                            \
-    for (int i = 0; i < (funcs)->size(); i++) {                                \
-        (*((*(funcs))[i]))(args);                                              \
+    {                                                                          \
+        printf("===Start callthrough at %d in %s\n", __LINE__, __FILE__);      \
+        decltype(*funcs) copied_funcs = *funcs;                                \
+        for (auto i : copied_funcs) {                                          \
+            printf("%p\t", i);                                                 \
+            fflush(stdout);                                                     \
+            (*i)(args);                                                        \
+        }                                                                      \
+        printf("\n");                                                          \
     }
 
 // The render callback type
@@ -65,7 +73,7 @@ typedef struct resources_container {
     bool loaded = false;
 
     // End scene
-    Texture *arrow_win,*wasd_win;
+    Texture *arrow_win, *wasd_win;
     Texture *instruction;
 } resources_container;
 
