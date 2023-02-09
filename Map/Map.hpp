@@ -5,6 +5,8 @@
 #include "base.hpp"
 #include <SDL2pp/SDL2pp.hh>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 using namespace SDL2pp;
