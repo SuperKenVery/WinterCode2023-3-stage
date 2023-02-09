@@ -8,7 +8,6 @@ using namespace SDL2pp;
 
 #define RESOURCE_PATH "res/"
 #define REMOVEFROMONCE(elem, vect)                                             \
-    printf("Removing %p\n", elem);                                             \
     for (auto e = (vect)->begin(); e != (vect)->end(); e++) {                  \
         if (*e == (elem)) {                                                    \
             (vect)->erase(e);                                                  \
@@ -19,14 +18,11 @@ using namespace SDL2pp;
 // Safe even if the vector is modified
 #define CALLTHROUGH(funcs, args...)                                            \
     {                                                                          \
-        printf("===Start callthrough at %d in %s\n", __LINE__, __FILE__);      \
-        decltype(*funcs) copied_funcs = *funcs;                                \
+        auto copied_funcs = *funcs;                                            \
         for (auto i : copied_funcs) {                                          \
-            printf("%p\t", i);                                                 \
-            fflush(stdout);                                                     \
+            fflush(stdout);                                                    \
             (*i)(args);                                                        \
         }                                                                      \
-        printf("\n");                                                          \
     }
 
 // The render callback type
